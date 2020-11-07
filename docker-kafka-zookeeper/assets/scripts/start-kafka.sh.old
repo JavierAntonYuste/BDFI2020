@@ -76,27 +76,25 @@ if [ ! -z "$AUTO_CREATE_TOPICS" ]; then
     echo "\nauto.create.topics.enable=$AUTO_CREATE_TOPICS" >> $KAFKA_HOME/config/server.properties
 fi
 
-
-#Run Kafka
-${KAFKA_HOME}/bin/kafka-server-start.sh -daemon ${KAFKA_HOME}/config/server.properties
-
-sleep 30
-
 # Check if topic flight_delay_classification_request exists
-var=$("${KAFKA_HOME}/bin/kafka-topics.sh" --zookeeper localhost:2181 --list)
+ var= $KAFKA_HOME/bin/kafka-topics.sh --zookeeper localhost:2181 --list
 
-for topic in $var; do
-  if [ "$topic" = "flight_delay_classification_request" ]; then
-    check=true
-  fi
-done
+ for topic in $var
+ do
+   printf $topic==flight_delay_classification_request 
+   if [$topic==flight_delay_classification_request]; then
+	check=true
+   fi
+ done
 
-if [ ! $check ]; then
-  ${KAFKA_HOME}/bin/kafka-topics.sh \
+ if [ ! check ]; then
+  bin/kafka-topics.sh \
 	--create \
 	--zookeeper localhost:2181 \
 	--replication-factor 1 \
 	--partitions 1 \
 	--topic flight_delay_classification_request
-fi
+ fi
 
+#Run Kafka
+$KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties
