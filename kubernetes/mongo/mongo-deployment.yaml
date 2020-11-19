@@ -32,7 +32,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
       - name: mongo
-        image: mongo
+        image: javianton97/mongo
         command:
           - mongod
         ports:
