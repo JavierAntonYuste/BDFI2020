@@ -6,11 +6,12 @@ spec:
   type: ClusterIP
   selector:
     component: kafka
+  clusterIP: 10.0.10.100
   ports:
   - name: kafka
     port: 9092
     targetPort: 9092
-    
+
 ---
 
 apiVersion: apps/v1

@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-ip-service
+spec:
+  clusterIP: 10.0.10.99
+  selector:
+    component: flask
+  ports:
+  - name: flask
+    port: 5000
+    targetPort: 5000
+  externalIPs:
+    - 10.0.20.10
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: flask
+  template:
+    metadata:
+      labels:
+        component: flask
+    spec:
+      containers:
+      - name: flask
+        image: javianton97/flask
+        ports:
+          - containerPort: 5000
