@@ -4,6 +4,8 @@ RUN apt update && apt -y install python3-pip
 
 WORKDIR /home
 
+
+
 COPY requirements.txt /home/requirements.txt
 COPY resources /home/resources
 
