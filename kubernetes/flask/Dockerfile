@@ -4,12 +4,10 @@ RUN apt update && apt -y install python3-pip
 
 WORKDIR /home
 
-
+ENV PROJECT_HOME=/home
 
 COPY requirements.txt /home/requirements.txt
 COPY resources /home/resources
-
-ENV PROJECT_HOME=/home
 
 RUN pip3 install -r requirements.txt
 
