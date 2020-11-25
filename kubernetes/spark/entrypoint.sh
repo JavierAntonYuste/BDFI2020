@@ -8,3 +8,15 @@
 spark-submit --class es.upm.dit.ging.predictor.MakePrediction --master local # Cambiar por master k8s
  --packages org.mongodb.spark:mongo-spark-connector_2.12:3.0.0,org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.1
 /home/flight_prediction_2.12-0.1.jar
+
+## example
+bin/spark-submit \
+--master k8s://https://kubernetes.docker.internal:6443 \
+--deploy-mode cluster \
+--name spark-pi \
+--class org.apache.spark.examples.SparkPi \
+--conf spark.executor.instances=2 \
+--conf spark.kubernetes.container.image=spark:latest \
+--conf spark.kubernetes.container.image.pullPolicy=Never \
+--conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
+local:///opt/spark/examples/jars/spark-examples_2.12-3.1.0-SNAPSHOT.jar 10000000
