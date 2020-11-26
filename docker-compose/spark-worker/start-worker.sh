@@ -1,0 +1,19 @@
+#!/bin/bash
+
+. "/spark/sbin/spark-config.sh"
+. "/spark/bin/load-spark-env.sh"
+
+mkdir -p $SPARK_WORKER_LOG
+
+export SPARK_HOME=/spark
+
+ln -sf /dev/stdout $SPARK_WORKER_LOG/spark-worker.out
+
+/spark/sbin/../bin/spark-class org.apache.spark.deploy.worker.Worker --webui-port $SPARK_WORKER_WEBUI_PORT $SPARK_MASTER >> $SPARK_WORKER_LOG/spark-worker.out
+
+/spark/bin/spark-submit \
+--master ${SPARK_MASTER_URL} \
+--class ${SPARK_APPLICATION_MAIN_CLASS} \
+--deploy-mode cluster \
+--packages ${SPARK_SUBMIT_ARGS} \
+${SPARK_APPLICATION_JAR_LOCATION} \
