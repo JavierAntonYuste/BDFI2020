@@ -79,7 +79,10 @@ services:
       - practica_big_data_2019/:/practica_big_data_2019
 
   web:
-    image: javianton97/flask-compose
+    # Imagen para google cloud
+    image: javianton97/flask-compose-gce
+    # Imagen para local
+    # image: javianton97/flask-compose
     ports:
       - "5000:5000"
     networks:
