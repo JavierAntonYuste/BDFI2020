@@ -1,15 +1,15 @@
 version: "3"
 services:
   zookeeper:
-    container_name: zookeeper
+    container_name: zk
     image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
     networks:
       - mynet
-      
+
   kafka:
-    container_name: kafka
+    container_name: kfk
     image: wurstmeister/kafka
     hostname: kafka
     environment:
@@ -28,30 +28,31 @@ services:
       - mynet
 
   mongo:
-    container_name: mongo
-    image: mongo:3.4
+    container_name: mng
+    image: mongo
     command: --nojournal
     networks:
       - mynet
     ports:
       - "27017:27017"
+
   mongo-seed:
-    image: fvilers/mongo-seed:1.0.0
+    image: fvilers/mongo-seed:latest
     depends_on:
       - mongo
     environment:
       - MONGO_HOST=mongo
       - MONGO_PORT=27017
     volumes:
-      - ../practica_big_data_2019/:/practica_big_data_2019
+      - practica_big_data_2019/:/practica_big_data_2019
     command:
       "mongoimport --host mongo --port 27017 -d agile_data_science -c origin_dest_distances --mode upsert --file /practica_big_data_2019/data/origin_dest_distances.jsonl"
     networks:
       - mynet
+
   spark-master:
-    build:
-      context: ./spark-master
-    container_name: spark-master
+    container_name: spark-m
+    image: javianton97/spark-master
     ports:
       - "8080:8080"
       - "7077:7077"
@@ -61,10 +62,10 @@ services:
       - mynet
     depends_on:
       - kafka
+
   spark-worker-1:
-    build:
-      context: ./spark-worker
-    container_name: spark-worker-1
+    container_name: spark-w-1
+    image: javianton97/spark-worker
     depends_on:
       - spark-master
     ports:
@@ -75,29 +76,18 @@ services:
     networks:
       - mynet
     volumes:
-      - ../practica_big_data_2019/:/practica_big_data_2019
-#  spark-submit:
-#    build:
-#      context: ./spark-submit
-#    container_name: spark-submit
-#    depends_on:
-#      - spark-master
-#    networks:
-#      - mynet
-#    volumes:
-#      - ./models/:/models
-#      - ../practica_big_data_2019/:/practica_big_data_2019
+      - practica_big_data_2019/:/practica_big_data_2019
+
   web:
-    build:
-      context: .
+    image: javianton97/flask-compose
     ports:
       - "5000:5000"
     networks:
       - mynet
     environment:
-      - PROJECT_HOME=../practica_big_data_2019
+      - PROJECT_HOME=/practica_big_data_2019
     volumes:
-      - ../practica_big_data_2019/:/practica_big_data_2019
+      - practica_big_data_2019/:/practica_big_data_2019
 
 volumes:
   practica_big_data_2019:
