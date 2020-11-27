@@ -80,7 +80,7 @@ services:
 
   web:
     # Imagen para google cloud
-    image: javianton97/flask-compose-gce
+    image: javianton97/flask-compose-gc
     # Imagen para local
     # image: javianton97/flask-compose
     ports:
