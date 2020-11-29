@@ -27,7 +27,7 @@ spec:
       containers:
       - args:
         - --nojournal
-        image: mongo
+        image: javianton97/mongo
         imagePullPolicy: ""
         name: mng
         ports:

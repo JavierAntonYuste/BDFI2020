@@ -4,6 +4,7 @@ COPY startup-master.sh /
 
 ARG spark_master_web_ui=8080
 
+ENV SPARK_MASTER_HOST spark-hdfs
 ENV SPARK_MASTER_PORT 7077
 ENV SPARK_MASTER_WEBUI_PORT 8080
 

@@ -6,13 +6,13 @@ metadata:
     kompose.version: 1.21.0 (992df58d8)
   creationTimestamp: null
   labels:
-    io.kompose.service: spark-master
-  name: spark-master
+    io.kompose.service: spark-hdfs
+  name: spark-hdfs
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: spark-master
+      io.kompose.service: spark-hdfs
   strategy: {}
   template:
     metadata:
@@ -22,18 +22,13 @@ spec:
       creationTimestamp: null
       labels:
         io.kompose.network/mynet: "true"
-        io.kompose.service: spark-master
+        io.kompose.service: spark-hdfs
     spec:
+      hostname: spark-hdfs
       containers:
       - env:
         - name: SPARK_LOCAL_IP
-          value: spark-master
-        - name: MY_POD_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.podIP
-        - name: SPARK_MASTER_HOST
-          value: $(MY_POD_IP)
+          value: spark-hdfs
         image: javianton97/spark-master-k8s
         imagePullPolicy: ""
         name: spark-m
