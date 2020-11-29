@@ -12,7 +12,7 @@ import predict_utils
 # Set up Flask, Mongo and Elasticsearch
 app = Flask(__name__)
 
-client = MongoClient("mongodb://10.0.10.101:27017")
+client = MongoClient("mongodb://mongo:27017")
 
 from pyelasticsearch import ElasticSearch
 elastic = ElasticSearch(config.ELASTIC_URL)
@@ -25,7 +25,7 @@ import datetime
 
 # Setup Kafka
 from kafka import KafkaProducer
-producer = KafkaProducer(bootstrap_servers=['10.0.10.100:9092'],api_version=(0,10))
+producer = KafkaProducer(bootstrap_servers=['kafka:9092'],api_version=(0,10))
 PREDICTION_TOPIC = 'flight_delay_classification_request'
 
 import uuid

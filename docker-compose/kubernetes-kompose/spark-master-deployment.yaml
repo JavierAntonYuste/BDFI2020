@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f ../docker-compose.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: spark-master
+  name: spark-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: spark-master
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f ../docker-compose.yml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mynet: "true"
+        io.kompose.service: spark-master
+    spec:
+      containers:
+      - env:
+        - name: SPARK_LOCAL_IP
+          value: spark-master
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: SPARK_MASTER_HOST
+          value: $(MY_POD_IP)
+        image: javianton97/spark-master-k8s
+        imagePullPolicy: ""
+        name: spark-m
+        ports:
+        - containerPort: 8080
+        - containerPort: 7077
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}

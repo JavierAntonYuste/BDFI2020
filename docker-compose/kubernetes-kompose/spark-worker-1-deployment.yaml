@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f ../docker-compose.yml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: spark-worker-1
+  name: spark-worker-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: spark-worker-1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f ../docker-compose.yml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mynet: "true"
+        io.kompose.service: spark-worker-1
+    spec:
+      containers:
+      - env:
+        - name: SPARK_MASTER
+          value: spark://spark-master:7077
+        - name: constraint:node
+          value: =spark-worker-1
+        image: javianton97/spark-worker
+        imagePullPolicy: ""
+        name: spark-w-1
+        ports:
+        - containerPort: 8081
+        resources: {}
+        volumeMounts:
+        - mountPath: /practica_big_data_2019
+          name: spark-worker-1-claim0
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+      - name: spark-worker-1-claim0
+        persistentVolumeClaim:
+          claimName: spark-worker-1-claim0
+status: {}
