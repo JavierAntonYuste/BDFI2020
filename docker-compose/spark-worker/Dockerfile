@@ -4,7 +4,6 @@ COPY start-worker.sh /
 COPY flight_prediction_2.12-0.1.jar /
 
 ENV SPARK_WORKER_WEBUI_PORT 8081
-ENV SPARK_WORKER_LOG /usr/bin/spark-3.0.1-bin-hadoop2.7/logs
 ENV SPARK_MASTER "spark://spark-master:7077"
 
 #spark-submit

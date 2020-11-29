@@ -1,6 +1,6 @@
 FROM javianton97/spark-base
 
-COPY start-worker.sh /
+COPY startup-worker.sh /
 COPY flight_prediction_2.12-0.1.jar /
 COPY models/ /practica_big_data_2019/models/
 
@@ -17,4 +17,4 @@ ENV SPARK_APPLICATION_MAIN_CLASS="es.upm.dit.ging.predictor.MakePrediction"
 
 EXPOSE 8081
 
-CMD ["/bin/bash", "/start-worker.sh"]
+CMD ["/bin/bash", "/startup-worker.sh"]
