@@ -25,6 +25,36 @@ Ademas, se han actualizado tambien la version de los componentes de Scala que ap
 Aparte de eso, se puede consultar el procedimiento seguido en el archivo ProcedimientoLocal.txt subido en este mismo repositorio.
 
 ## docker-compose
-Se pueden encontrar los diferentes archivos empleados
+Se pueden encontrar los diferentes archivos empleados en la carpeta docker-compose de este repositorio, en la que se pueden encontrar varias subcarpetas y archivos:
+
+ - **flask**: en esta subcarpeta se encuentran diferentes ficheros, detallados a continuacion:
+   - resources: carpeta donde se encuentran los difentes recursos necesarios para levantar la web
+   - Dockerfile: fichero necesario para crear la imagen de Docker de flask.
+   - requirements.txt: paquetes requeridos para el correcto funcionamiento de flask. Incluidos en el contenedor a traves del Dockerfile.
+
+ - **cluster-base y spark-base**: en estas carpetas se encuentran los Dockerfiles de apoyo para la creacion de los contenedores de Spark.
+ - **spark-master**: 
+   - Dockerfile: fichero para la creacion de la imagen Docker
+   - startup-master.sh: fichero empleado como entrypoint en la imagen.
+- **spark-worker**
+   - Dockerfile: igual que para el spark-master
+   - startup-worker.sh: igual que el spark-master
+   - flight_prediction_2.12-0.1.jar: fichero empleado por el job de spark-submit para poder ser capaz de realizar la prediccion de retraso de vuelos.
+ - **docker-compose.yaml**: usado para levantar la aplicacion usando las imagenes realizadas, y ademas otras de DockerHub, las cuales son:
+   - [zookeeper](https://hub.docker.com/r/wurstmeister/zookeeper)
+   - [kafka](https://hub.docker.com/r/wurstmeister/kafka)
+   - [mongo](https://hub.docker.com/_/mongo)
+   - [mongo-seed](https://hub.docker.com/r/fvilers/mongo-seed)
+Empleada para introducir automaticamente al iniciarse el docker-compose los datos a la base de datos de mongo.
+
+Todas las imagenes creadas por nosotros han sido subidas a [nuestro repositorio de DockerHub](https://hub.docker.com/u/javianton97) empleando el siguiente procedimiento.
+
+    # Construccion de la imagen, con su tag
+    docker build . -t javianton97/<tag>
+    
+    #Subida a DockerHub
+    docker push javianton97/<tag>
+  
+ Ahi se pueden encontrar las imagenes de [flask](https://hub.docker.com/r/javianton97/flask-compose), [flask para Google Cloud](https://hub.docker.com/r/javianton97/flask-compose-gc), [spark-master](https://hub.docker.com/r/javianton97/spark-master) y [spark-worker](https://hub.docker.com/r/javianton97/spark-worker) del docker-compose empleado.
 
 ## kubernetes
