@@ -1,0 +1,125 @@
+1- Instalar JDK (v8), SBT e IntelliJ
+2- Clonar repositorio de la práctica
+3- Instalar los requirements de Flask
+
+Tuvimos que desinstalar Python 2.7 y reinstalar pip3 para que pudiésemos instalar todos los requirements, porque el soporte para pip de python 2.7 acabo en enero de 2020.
+
+4- Instalar MongoDB
+https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
+
+Hacemos los pasos que aparecen en el anterior link: (para Ubuntu 20.04)
+
+wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+
+5- Instalar Apache Spark
+
+https://computingforgeeks.com/how-to-install-apache-spark-on-ubuntu-debian/
+
+Seguimos las instrucciones que ahí nos marcan para instalar Spark 3.0.1 preconstruido para hadoop 2.7
+
+curl -O https://downloads.apache.org/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz
+tar -xvf spark-3.0.1-bin-hadoop2.7.tgz
+sudo mv spark-3.0.1-bin-hadoop2.7 /opt/spark
+
+Cambiamos el archivo ~/.bashrc, para poner las variables de entorno de Spark segun viene en las instrucciones:
+export SPARK_HOME=/opt/spark y export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
+
+6 - Descargar Zookeeper
+
+wget https://apache.claz.org/zookeeper/zookeeper-3.6.2/apache-zookeeper-3.6.2-bin.tar.gz
+tar -xvf apache-zookeeper-3.6.2-bin.tar.gz
+
+7- Descargar Kafka
+
+wget https://apache.claz.org/kafka/2.6.0/kafka_2.12-2.6.0.tgz
+tar -xvf tar -xvf kafka_2.12-2.6.0.tgz
+
+8- Inicializacion del server Zookeeper
+
+https://www.tutorialspoint.com/zookeeper/zookeeper_installation.htm
+
+Para inicializarlo tendremos que ejecutar el archivo situado en bin/zkServer.sh
+Pero antes, debemos de hacer las configuraciones necesarias:
+ - Copiamos el fichero de configuraciones situado en conf/zoo-sample.cfg con el nombre zoo.cfg en la misma carpeta conf/
+ - Cambiamos la ruta de datos de Zookeper, creando una carpeta data en la carpeta descomprimida
+ - Indicamos en el nuevo archivo conf/zoo.cfg lo siguiente dirData=/home/javi-anton/Documentos/ETSIT/BDFI/zookeeper/data
+
+Inicializamos zookeeper con el siguiente comando: bin/zkServer.sh start
+
+9 - Inicializacion de Kafka
+
+Vamos a la carpeta descomprimida de Kafka y ejecutamos lo siguiente en un terminal.
+bin/kafka-server-start.sh config/server.properties
+
+Lo cual hace que se ejecute Kafka.
+
+10 - Creamos un topic de Kafka
+
+Ejecutamos la siguiente orden en un terminal nuevo:
+
+    bin/kafka-topics.sh \
+        --create \
+        --zookeeper localhost:2181 \
+        --replication-factor 1 \
+        --partitions 1 \
+        --topic flight_delay_classification_request
+
+Lo cual nos inicia el topic con nombre flight_delay_classification_request
+
+Tambien abrimos un consumer para escuchar los mensajes del topic, lo cual lo hacemos con la siguiente orden:
+bin/kafka-console-consumer.sh \
+    --bootstrap-server localhost:9092 \
+    --topic flight_delay_classification_request \
+    --from-beginning
+
+EXTRA
+Para poder ver la lista de topics disponible en el servidor de Zookeeper ejecutamos la orden siguiente:
+bin/kafka-topics.sh --zookeeper localhost:2181 --list
+
+11- Consultamos el estado actual del servicio de MongoDB y realizamos las acciones oportunas
+
+Lo consultamos con la siguiente orden: service mongod status
+
+Si esta inactivo, lo iniciamos con service mongod start
+
+12 - Una vez hecho estas preparaciones, podemos proceder a importar los datos de nuestra aplicación
+
+Primero corremos el script situado en resources/download-data.sh para obtener los datos pertinentes, aunque nos da fallo ya que la carpeta data/ no esta creada.
+Modificamos el script para que se cree automáticamente cuando se ejecute, añadiendo la orden mkdir $ABSOLUTE_DIR/../data antes de la que ya esta presente cd $ABSOLUTE_DIR/../data/
+
+Después de eso ejecutamos el script resources/import_distances.sh para importa las distancias que hay entre aeropuertos.
+
+13 - Entrenar el modelo
+
+Para esto tenemos un script situado en resources/train_spark_mllib_model.py con la finalidad de entrenar a nuestro predictor, ejecutando el comando:
+
+python3 resources/train_spark_mllib_model.py .
+
+Tarda un rato en hacer las predicciones.
+
+
+14 - Ejecutar la aplicación web
+
+Después de todo lo anterior, hemos ejecutado el fichero resources/web/predict_flask.py
+
+Hemos hecho unas operaciones antes:
+ - Cambiar la linea de from sklearn.externals import joblib porque no funcionaba el import bien
+ - Definido la variable de entorno "PROJECT_HOME" con export PROJECT_HOME=/home/javi-anton/Documentos/ETSIT/BDFI/practica_big_data_2019/
+
+15 - Correr en IntelliJ la aplicación flight_prediction
+
+En el archivo MakePrediction.scala hemos metido el directorio donde se encuentra nuestra practica, concretamente
+en /home/javi-anton/Documentos/ETSIT/BDFI/practica_big_data_2019
+
+
+Procedimiento extra para hacerlo con spark-submit
+
+1 - Corremos dentro del paquete flight_prediction sbt clean y sbt package para generar el .jar deseado en la carpeta flight_prediction/target/
+
+2- Una vez compilado el código scala ejecutamos la siguiente orden, que activa el predictor:
+
+spark-submit --class es.upm.dit.ging.predictor.MakePrediction --master local --packages org.mongodb.spark:mongo-spark-connector_2.12:3.0.0,org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.1
+ /home/javi-anton/Documentos/ETSIT/BDFI/practica_big_data_2019/flight_prediction/target/scala-2.12/flight_prediction_2.12-0.1.jar
