@@ -25,7 +25,9 @@ Ademas, se han actualizado tambien la version de los componentes de Scala que ap
 Aparte de eso, se puede consultar el procedimiento seguido en el archivo ProcedimientoLocal.txt subido en este mismo repositorio.
 
 ## docker-compose
-Se pueden encontrar los diferentes archivos empleados en la carpeta docker-compose de este repositorio, en la que se pueden encontrar varias subcarpetas y archivos:
+
+### Recursos
+En la carpeta docker-compose de este repositorio se encuentran los recursos empleados para soportar a al aplicacion. Se pueden encontrar varias subcarpetas y archivos:
 
  - **flask**: en esta subcarpeta se encuentran diferentes ficheros, detallados a continuacion:
    - resources: carpeta donde se encuentran los difentes recursos necesarios para levantar la web
@@ -56,5 +58,31 @@ Todas las imagenes creadas por nosotros han sido subidas a [nuestro repositorio 
     docker push javianton97/<tag>
   
  Ahi se pueden encontrar las imagenes de [flask](https://hub.docker.com/r/javianton97/flask-compose), [flask para Google Cloud](https://hub.docker.com/r/javianton97/flask-compose-gc), [spark-master](https://hub.docker.com/r/javianton97/spark-master) y [spark-worker](https://hub.docker.com/r/javianton97/spark-worker) del docker-compose empleado.
+
+### Inicializacion
+Para iniciar docker-compose, se debe clonar el repositorio con:
+
+    git clone
+ 
+Navegar hasta la carpeta donde se encuentra el archivo docker-compose.yaml:
+
+    cd docker-compose
+    
+Y, dependiendo de donde se quiera desplegar, si en local o en Google cloud se debe modificar las lineas correspondientes en el fichero docker-compose.yaml:
+
+    web:
+    # Descomentar para usar imagen para Google Cloud
+    image: javianton97/flask-compose-gc
+    # Descomentar para usar imagen para local
+    # image: javianton97/flask-compose
+  
+  **Nota**: Por defecto esta para desplegarse en Google Cloud
+  
+  Una vez realizado este procedimiento, se puede proceder a ejecutar docker-compose con:
+  
+
+    docker-compose up
+  
+ **Nota**: Como se emplean todas las imagenes desde DockerHub no hace falta hacer docker-compose build, ya que estan todas las imagenes construidas, acelerando mucho el proceso de activacion de la aplicacion.
 
 ## kubernetes
