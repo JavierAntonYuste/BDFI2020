@@ -62,7 +62,7 @@ Todas las imagenes creadas por nosotros han sido subidas a [nuestro repositorio 
 ### Inicializacion
 Para iniciar docker-compose, se debe clonar el repositorio con:
 
-    git clone
+    git clone git@github.com:JavierAntonYuste/BDFI2020.git
  
 Navegar hasta la carpeta donde se encuentra el archivo docker-compose.yaml:
 
