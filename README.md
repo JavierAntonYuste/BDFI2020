@@ -1,5 +1,5 @@
 # Flight Predictor BDFI 2020
-Este proyecto se ha realizado como practica para la asignatura BDFI del año 2020 del Master Universitario en Ingenieria de Telecomunicacion. Esta basado en el proyecto facilitado por la misma asignatura que se puede encontrar en el siguiente repositorio: [https://github.com/ging/practica_big_data_2019](https://github.com/ging/practica_big_data_2019)
+Este proyecto se ha realizado por Javier Anton Yuste y David Recuenzo Bermejo como practica para la asignatura BDFI del año 2020 del Master Universitario en Ingenieria de Telecomunicacion. Esta basado en el proyecto facilitado por la misma asignatura que se puede encontrar en el siguiente repositorio: [https://github.com/ging/practica_big_data_2019](https://github.com/ging/practica_big_data_2019)
 
 La anterior aplicacion se ha desplegado de tres formas diferentes, en local, usando la herramienta docker-compose para local y para Google Cloud Platform, y usando Kubernetes en Azure. Se detallan ambos procedimientos a continuacion.
 
