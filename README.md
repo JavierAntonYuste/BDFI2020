@@ -85,4 +85,72 @@ Y, dependiendo de donde se quiera desplegar, si en local o en Google cloud se de
   
  **Nota**: Como se emplean todas las imagenes desde DockerHub no hace falta hacer docker-compose build, ya que estan todas las imagenes construidas, acelerando mucho el proceso de activacion de la aplicacion.
 
-## kubernetes
+## Kubernetes
+Se ha realizado el despliegue de la aplicacion en Kubernetes, concretamente en la plataforma de Microsoft Azure. 
+
+### Recursos
+Para generar los archivos de despliegue se ha hecho uso de la herramienta [kompose](https://github.com/kubernetes/kompose), que nos ha ayudado a traducir nuestro docker-compose a Kubernetes.
+
+En la carpeta kubernetes de este repositorio se pueden encontrar varias subcarpetas: 
+
+ - **k8s-images**: como en el procedimiento anterior  para docker-compose, se han tenido que crear varias imagenes propias para poder desplegar la aplicacion. Los ficheros para la creacion de estas imagenes se encuentran en esta carpeta.
+ 
+- **old-deployments**: nos ha llevado tiempo familiarizarnos con k8s, para lo cual hemos tenido que experimentar con varias configuraciones y estos que se encuentran aqui son el resultado de viejos despliegues fallidos, que queriamos guardar como backup.
+
+- **svc-deployments**: se encuentran, por carpetas los diferentes ficheros de despliegue, entre los que cabe destacar:
+  - mongo-statefulset: despliegue con persistencia de la base de datos mongo, para lo cual se ha tenido que desplegar un volumen persistente, una clase de almacenamiento personalizada y el propio despliegue incluyendo la claim del volumen persistente.
+  
+  - mynet-networkpolicy.yaml: archivo donde se especifican las politicas de networking del cluster.
+
+Al desplegarlo hemos tenido varios problemas con los nombres, ya que kubernetes tenia ciertos nombres reservados y no se podian usar, ya que incidian al error.
+
+### Despliegue
+Para poder desplegar los servicios en el cluster de k8s hay que tomar los pasos marcados a continuacion.
+
+Clonar el repositorio git en nuestro ordenador: 
+
+    git clone git@github.com:JavierAntonYuste/BDFI2020.git
+
+Acceder a la carpeta donde se encuentran los ficheros de despliegue:
+
+    cd kubernetes/svc-deployments/
+
+(Opcional) Crear un namespace para desplegarlo en Kubernetes:
+
+    kubectl create namespace <nombre>
+
+Desplegar los diferentes servicios y despliegues de todos los elementos (excepto mongo) con la orden:
+
+    # Creacion del servicio
+    kubectl apply -f <nombre servicio>-service.yaml -n <nombre namespace>
+
+
+    # Despliegue del elemento
+    kubectl apply -f <nombre deployment>-deployment.yaml -n <nombre namespace>
+
+Para poder desplegar el statefulset de mongo se deben introducir los siguientes comandos:
+
+    # Creacion de la clase de almacenamiento
+    kubectl apply -f storage-class.yaml
+    
+    # Creacion del volumen persistente
+    kubectl apply -f persistenvolume.yaml -n <nombre namespace>
+    
+    # Despliegue de mongo y su servicio (juntos en el mismo archivo)
+    kubectl apply -f mongo-deployment.yaml -n <nombre namespace>
+Para poder popular la base de datos de mongo, necesitamos hacer un import de los datos, realizandolo de la siguiente manera:
+
+    # Averiguamos el nombre del pod de mongo:
+    kubectl get pods -n <nombre namespace>
+    
+    # Entramos en el pod de mongo
+    kubectl exec -it <nombre pod> /bin/bash -n <nombre namespace>
+    
+    # Ejecutamos la orden de mongoimport
+    mongoimport -d agile_data_science -c origin_dest_distances --file /home/origin_dest_distances.jsonl
+
+Una vez realizados estos pasos, se puede probar que el cluster funciona mediante un port-forward del servicio web a nuestro PC, conseguido mediante la siguiente orden:
+
+    kubectl port-forward svc/web 5000:5000 -n <nombre namespace>
+
+Con esto, podemos ir a un navegador a la direccion ``localhost:5000``, donde encontramos nuestra web, y si vamos concretamente a la ruta ``localhost:5000/flights/delays/predict_kafka`` donde encontramos el predictor de vuelos.
