@@ -69,15 +69,6 @@ Navegar hasta la carpeta donde se encuentra el archivo docker-compose.yaml:
 
     cd docker-compose
 
-Y, dependiendo de donde se quiera desplegar, si en local o en Google cloud se debe modificar las lineas correspondientes en el fichero docker-compose.yaml:
-
-    web:
-    # Descomentar para usar imagen para Google Cloud
-    image: javianton97/flask-compose-gc
-    # Descomentar para usar imagen para local
-    # image: javianton97/flask-compose
-
-  **Nota**: Por defecto esta para desplegarse en Google Cloud
 
   Una vez realizado este procedimiento, se puede proceder a ejecutar docker-compose con:
 
@@ -156,3 +147,61 @@ Una vez realizados estos pasos, se puede probar que el cluster funciona mediante
     kubectl port-forward svc/web 5000:5000 -n <nombre namespace>
 
 Con esto, podemos ir a un navegador a la dirección ``localhost:5000``, donde encontramos nuestra web, y si vamos concretamente a la ruta ``localhost:5000/flights/delays/predict_kafka`` donde encontramos el predictor de vuelos.
+
+
+## Cambios en los archivos
+Para poder hacer uso de los servicios, sobre todo con los servicios de Kubernetes y de docker-compose, se han alterado los archivos originales de la práctica.
+
+Los archivos modificados para las conexiones de Kafka y MongoDB han sido los siguientes:
+ - [resources/web/predict_flask.py](https://github.com/ging/practica_big_data_2019/blob/master/resources/web/predict_flask.py) 
+
+ - [flight_prediction/src/.../MakePrediction.scala](https://github.com/ging/practica_big_data_2019/blob/master/flight_prediction/src/main/scala/es/upm/dit/ging/predictor/MakePrediction.scala)
+
+Los fragmentos de código cambiados son indicados a continuación:
+#### predict_flask.py
+
+    # Código destinado a despliegue local
+    ...
+    client  =  MongoClient()
+    ...
+    producer = KafkaProducer(bootstrap_servers ['localhost:9092'],api_version=(0,10))
+    ...
+    
+    # Código para despliegue en k8s o docker-compose
+    ...
+    client  =  MongoClient("mongodb://<nombre servicio>:27017")
+    ...
+    producer = KafkaProducer(bootstrap_servers ['<nombre servicio>:9092'],api_version=(0,10))
+    ...
+    
+#### MakePrediction.scala
+
+    // Código destinado a despliegue local
+    ...
+    // Define MongoUri for connection 
+    val writeConfig = WriteConfig(Map("uri" -> "mongodb://127.0.0.1:27017/agile_data_science.flight_delay_classification_response"))
+    ...
+    val df = spark
+    .readStream
+    .format("kafka")
+    .option("kafka.bootstrap.servers", "localhost:9092")
+    .option("subscribe", "flight_delay_classification_request")
+    .load()
+    df.printSchema()
+     ...
+    
+    // Código para despliegue en k8s o docker-compose
+    ...
+    // Define MongoUri for connection 
+    val writeConfig = WriteConfig(Map("uri" -> "mongodb://<nombre servicio>:27017/agile_data_science.flight_delay_classification_response"))    
+    ... 
+    val df = spark
+    .readStream
+    .format("kafka")
+    .option("kafka.bootstrap.servers", "<nombre servicio>:9092")
+    .option("subscribe", "flight_delay_classification_request")
+    .load()
+    df.printSchema()
+     ...
+     
+Cabe mencionar que cuando se hace un cambio en el MakePrediction.scala se debe recompilar el proyecto con sbt para hacer efectivos los cambios en el .jar ejecutable que se pasa posteriormente a spark-submit.
